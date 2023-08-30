@@ -9,31 +9,39 @@ services:
       - 8080:80
     environment:
       WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: ${MYSQL_USER}  
-      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
-      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: nome_utente_db
+      WORDPRESS_DB_PASSWORD: password_db
+      WORDPRESS_DB_NAME: nome_database
     volumes:
-      -/host/path/to/wordpress:/var/www/html
+      - ./wordpress:/var/www/html
+      - ./php.ini:/var/www/html/php.ini
+    cpus: 8
+    mem_limit: 8g
+
   db:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: nome_database
+      MYSQL_USER: nome_utente_db
+      MYSQL_PASSWORD: password_db
       MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
-      - db:/var/lib/mysql
-       
+      - db_data:/var/lib/mysql
+    cpus: 1
+    mem_limit: 1g
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
     ports:
       - 8081:80
     environment:
-      PMA_HOST: db 
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      PMA_HOST: db
+      MYSQL_USER: nome_utente_db
+      MYSQL_PASSWORD: password_db
+    cpus: 1
+    mem_limit: 1g
 
 volumes:
-  db:
+  db_data:
