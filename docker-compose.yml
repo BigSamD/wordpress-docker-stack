@@ -1,47 +1,32 @@
-version: '3'
+version: '3.3'
 
 services:
+  db:
+    image: mariadb:10.6.4-focal
+    container_name: wordpress_site_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.db_data/:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
 
   wordpress:
-    image: wordpress
-    restart: always
+    container_name: wordpress_site_wordpress
+    depends_on:
+      - db
+    image: wordpress:latest
     ports:
-      - 8080:80
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: nome_utente_db
-      WORDPRESS_DB_PASSWORD: password_db
-      WORDPRESS_DB_NAME: nome_database
+      - "8080:80"
+    working_dir: /var/www/html
     volumes:
-      - ./wordpress:/var/www/html
-      - ./php.ini:/var/www/html/php.ini
-    cpus: 8
-    mem_limit: 8g
-
-  db:
-    image: mysql:5.7
-    restart: always
+      - ./wordpress:/var/www/html/wp-content/themes/wordpress
+      - ./plugins:/var/www/html/wp-content/plugins
     environment:
-      MYSQL_DATABASE: nome_database
-      MYSQL_USER: nome_utente_db
-      MYSQL_PASSWORD: password_db
-      MYSQL_RANDOM_ROOT_PASSWORD: '1'
-    volumes:
-      - db_data:/var/lib/mysql
-    cpus: 1
-    mem_limit: 1g
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - 8081:80
-    environment:
-      PMA_HOST: db
-      MYSQL_USER: nome_utente_db
-      MYSQL_PASSWORD: password_db
-    cpus: 1
-    mem_limit: 1g
-
-volumes:
-  db_data:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
